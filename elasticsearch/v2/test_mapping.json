@@ -1,0 +1,80 @@
+{
+	"dynamic_templates": [{
+		"comment_field": {
+			"mapping": {
+				"norms": false,
+				"type": "text"
+			},
+			"match": "(comment|detail|description|subject)",
+			"match_mapping_type": "string",
+			"match_pattern": "regex"
+		}
+	}, {
+		"status_field": {
+			"mapping": {
+				"fielddata": true,
+				"norms": false,
+				"type": "text"
+			},
+			"match": "status",
+			"match_mapping_type": "string",
+			"match_pattern": "regex"
+		}
+	}, {
+		"group_members_field": {
+			"mapping": {
+				"index": false,
+				"norms": false
+			},
+			"match": "members",
+			"match_mapping_type": "string",
+			"match_pattern": "regex"
+		}
+	}, {
+		"completion_suggestor_field": {
+			"mapping": {
+				"norms": false,
+				"type": "completion"
+			},
+			"match": "(mobile|alias)",
+			"match_mapping_type": "string",
+			"match_pattern": "regex"
+		}
+	}, {
+		"amount_field": {
+			"mapping": {
+				"norms": false,
+				"null_value": 0,
+				"type": "double"
+			},
+			"match": "amount",
+			"match_pattern": "regex"
+		}
+	}, {
+		"all_string_field": {
+			"mapping": {
+				"norms": false,
+				"type": "keyword"
+			},
+			"match_mapping_type": "string"
+		}
+	}, {
+		"integer_field": {
+			"mapping": {
+				"norms": false,
+				"null_value": 0,
+				"type": "long"
+			},
+			"match_mapping_type": "long"
+		}
+	}, {
+		"double_field": {
+			"mapping": {
+				"norms": false,
+				"null_value": 0,
+				"type": "double"
+			},
+			"match_mapping_type": "double"
+		}
+	}]
+}

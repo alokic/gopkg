@@ -1,0 +1,5 @@
+{
+  "brokers":"localhost",
+  "topic":"test-kafka-lib",
+  "groupName":"gopkg-consumer"
+}

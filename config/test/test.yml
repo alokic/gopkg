@@ -1,0 +1,24 @@
+development: &default
+  mobile: +919999988888
+  url: http://localhost.com
+
+  concurrency: 100
+  events:
+    - noticeSms
+    - testSms
+
+staging:
+  <<: *default
+  url: https://staging.localhost.com
+
+dev:
+  <<: *default
+  url: https://dev.localhost.com
+  dev_concurrency: 30
+
+production:
+  <<: *default
+  url: https://www.localhost.com
+
+test:
+  <<: *default
