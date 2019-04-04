@@ -3,7 +3,7 @@ package sql
 import (
 	"strings"
 
-	sql "github.com/alokic/gopkg/sql/v2"
+	"github.com/alokic/gopkg/sql"
 	"github.com/jmoiron/sqlx/reflectx"
 	"github.com/lib/pq"
 
