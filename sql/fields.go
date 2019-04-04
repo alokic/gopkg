@@ -55,6 +55,7 @@ type FieldInfo struct {
 	Names        string   // "FirstName, LastName, Email"
 	Valids       map[string]*validInfo
 	FieldCount   int
+	DriverName   string // postgres, sqllite etc
 }
 
 type validFn func(reflect.Value, string) bool
@@ -79,7 +80,7 @@ type validInfo struct {
 
 // GenFieldInfo generates info about struct like bindvars, tags, validation info (used for validating struct instance).
 // For fields to store in db, it looks for "db" tags in struct
-func GenFieldInfo(b interface{}) *FieldInfo {
+func GenFieldInfo(driverName string, b interface{}) *FieldInfo {
 	var namevars, enumvars, qvars, dbtags, names []string
 	var js, fn string
 
@@ -111,6 +112,7 @@ func GenFieldInfo(b interface{}) *FieldInfo {
 	f.DBTagsArr = dbtags
 	f.Names = strings.Join(names, ", ")
 	f.FieldCount = val.Type().NumField()
+	f.DriverName = driverName
 	return f
 }
 

@@ -1,4 +1,4 @@
-package v2
+package sql
 
 import (
 	"github.com/jmoiron/sqlx"
