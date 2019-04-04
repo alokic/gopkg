@@ -19,8 +19,8 @@ type Logger interface {
 	Log(...interface{}) error
 }
 
-// viper will by default read config.[ext] in folders directory.
-type config struct {
+// Config struct
+type Config struct {
 	folders   []string
 	envPrefix string
 	cfgStruct interface{}
@@ -29,12 +29,12 @@ type config struct {
 }
 
 // New constructor for config.
-func New(cfg interface{}, envPrefix string, flags *pflag.FlagSet, folders ...string) *config {
-	return &config{cfgStruct: cfg, folders: folders, envPrefix: envPrefix, flags: flags, v: viper.New()}
+func New(cfg interface{}, envPrefix string, flags *pflag.FlagSet, folders ...string) *Config {
+	return &Config{cfgStruct: cfg, folders: folders, envPrefix: envPrefix, flags: flags, v: viper.New()}
 }
 
 //Load will setup the config object passed by reading configurations from different sources like env, cmd line flag, config file.
-func (c *config) Load() error {
+func (c *Config) Load() error {
 	if err := c.setupViper(); err != nil {
 		return errors.Wrap(err, "error in setting up viper")
 	}
@@ -62,7 +62,7 @@ func (c *config) Load() error {
 }
 
 // Print config.
-func (c *config) Print(logger Logger) error {
+func (c *Config) Print(logger Logger) error {
 	iter, err := structutils.NewIterator(c.cfgStruct, []string{"print"})
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func (c *config) Print(logger Logger) error {
 	return nil
 }
 
-func (c *config) setFlag(field *structutils.Field) error {
+func (c *Config) setFlag(field *structutils.Field) error {
 	jt := c.getTag(field, "json")
 	if jt == "" {
 		return fmt.Errorf("missing json tag in %s", field.Name)
@@ -118,7 +118,7 @@ func (c *config) setFlag(field *structutils.Field) error {
 	return nil
 }
 
-func (c *config) setDefaultValue(field *structutils.Field) {
+func (c *Config) setDefaultValue(field *structutils.Field) {
 	if typeutils.Blank(field.Value) {
 		return
 	}
@@ -131,7 +131,7 @@ func (c *config) setDefaultValue(field *structutils.Field) {
 	c.v.SetDefault(key, field.Value)
 }
 
-func (c *config) getTag(field *structutils.Field, tag string) string {
+func (c *Config) getTag(field *structutils.Field, tag string) string {
 	for _, v := range field.Tags {
 		if v.Name == tag {
 			return v.Value
@@ -140,7 +140,7 @@ func (c *config) getTag(field *structutils.Field, tag string) string {
 	return ""
 }
 
-func (c *config) setupViper() error {
+func (c *Config) setupViper() error {
 	if c.envPrefix != "" {
 		viper.SetEnvPrefix(c.envPrefix)
 	}
@@ -149,7 +149,7 @@ func (c *config) setupViper() error {
 	return c.setConfigPath()
 }
 
-func (c *config) setConfigPath() error {
+func (c *Config) setConfigPath() error {
 	if len(c.folders) == 0 {
 		return nil
 	}
@@ -161,13 +161,13 @@ func (c *config) setConfigPath() error {
 	return c.v.ReadInConfig()
 }
 
-func (c *config) parseFlags() {
+func (c *Config) parseFlags() {
 	c.flags.AddGoFlagSet(flag.CommandLine)
 	c.v.BindPFlags(c.flags)
 	c.flags.Parse(os.Args[1:])
 }
 
-func (c *config) populateStruct() error {
+func (c *Config) populateStruct() error {
 	iter, err := structutils.NewIterator(c.cfgStruct, []string{"json", "required"})
 	if err != nil {
 		return err
@@ -195,7 +195,7 @@ func (c *config) populateStruct() error {
 	return nil
 }
 
-func (c *config) setStructField(field *structutils.Field, value interface{}) error {
+func (c *Config) setStructField(field *structutils.Field, value interface{}) error {
 	// pointer to struct
 	s := reflect.ValueOf(c.cfgStruct)
 
@@ -226,11 +226,11 @@ func (c *config) setStructField(field *structutils.Field, value interface{}) err
 	return nil
 }
 
-func (c *config) isRequired(field *structutils.Field) bool {
+func (c *Config) isRequired(field *structutils.Field) bool {
 	return c.getTag(field, "required") == "true"
 }
 
-func (c *config) envKey(key string) string {
+func (c *Config) envKey(key string) string {
 	if c.envPrefix != "" {
 		return strings.ToUpper(c.envPrefix) + "_" + strings.ToUpper(key)
 	}
