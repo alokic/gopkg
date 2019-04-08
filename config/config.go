@@ -142,7 +142,7 @@ func (c *Config) getTag(field *structutils.Field, tag string) string {
 
 func (c *Config) setupViper() error {
 	if c.envPrefix != "" {
-		viper.SetEnvPrefix(c.envPrefix)
+		c.v.SetEnvPrefix(c.envPrefix)
 	}
 
 	c.v.AutomaticEnv()
