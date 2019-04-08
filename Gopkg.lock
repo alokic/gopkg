@@ -93,6 +93,14 @@
   version = "v1.6.0"
 
 [[projects]]
+  digest = "1:ec6f9bf5e274c833c911923c9193867f3f18788c461f76f05f62bb1510e0ae65"
+  name = "github.com/go-sql-driver/mysql"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "72cd26f257d44c1114970e19afddcd812016007e"
+  version = "v1.4.1"
+
+[[projects]]
   digest = "1:e4f5819333ac698d294fe04dbf640f84719658d5c7ce195b10060cc37292ce79"
   name = "github.com/golang/snappy"
   packages = ["."]
@@ -393,6 +401,14 @@
   version = "v0.3.0"
 
 [[projects]]
+  digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
+  name = "google.golang.org/appengine"
+  packages = ["cloudsql"]
+  pruneopts = "UT"
+  revision = "54a98f90d1c46b7731eb8fb305d2a321c30ef610"
+  version = "v1.5.0"
+
+[[projects]]
   digest = "1:666437a2555a404e79c8c8c3b9734acbdcca8fdc2bdde02915b18432a1d415e4"
   name = "gopkg.in/DataDog/dd-trace-go.v1"
   packages = [
@@ -433,6 +449,7 @@
     "github.com/confluentinc/confluent-kafka-go/kafka",
     "github.com/dgrijalva/jwt-go",
     "github.com/garyburd/redigo/redis",
+    "github.com/go-sql-driver/mysql",
     "github.com/gomodule/redigo/redis",
     "github.com/gorilla/mux",
     "github.com/jinzhu/copier",
