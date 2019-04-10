@@ -211,17 +211,19 @@ func (c *Config) setStructField(field *structutils.Field, value interface{}) err
 		return fmt.Errorf("cannot set %s", field.Name)
 	}
 
-	switch field.Type {
-	case "string":
+	switch f.Type().Kind() {
+	case reflect.String:
 		f.SetString(typeutils.ToStr(value))
-	case "int":
+	case reflect.Int64:
 		f.SetInt(typeutils.ToInt64(value))
-	case "float64":
+	case reflect.Float64:
 		f.SetFloat(typeutils.ToFloat64(value))
-	case "uint64":
+	case reflect.Uint64:
 		f.SetUint(typeutils.ToUint64(value))
-	case "bool":
+	case reflect.Bool:
 		f.SetBool(typeutils.ToBool(value))
+	default:
+		f.Set(reflect.ValueOf(value))
 	}
 	return nil
 }
