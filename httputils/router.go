@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	gmux "github.com/gorilla/mux"
+	"github.com/julienschmidt/httprouter"
 )
 
 var (
@@ -37,6 +38,8 @@ func CreateRouter(routerName string) Router {
 		return NewGorilla(gmux.NewRouter())
 	case "http":
 		return NewNetHTTP(http.NewServeMux())
+	case "httprouter":
+		return NewHTTPRouter(httprouter.New())
 	default:
 		return nil
 	}
@@ -126,6 +129,53 @@ func (c *NetHTTP) Name() string {
 
 // SetMuxFn set a func which return mux ... it helps in returning actaul mux from embedded types.
 func (c *NetHTTP) SetMuxFn(fn func() *http.ServeMux) {
+	c.muxFn = fn
+}
+
+// HTTPRouter router.
+type HTTPRouter struct {
+	mux   http.Handler
+	muxFn func() *httprouter.Router
+}
+
+// NewHTTPRouter constructor
+func NewHTTPRouter(mux http.Handler) *HTTPRouter {
+	g := &HTTPRouter{mux: mux}
+	g.muxFn = func() *httprouter.Router {
+		return g.mux.(*httprouter.Router)
+	}
+	return g
+}
+
+// ServeHTTP - yay proxy is http.Handler
+func (c *HTTPRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	c.mux.ServeHTTP(w, r)
+}
+
+// Handle a path with method
+func (c *HTTPRouter) Handle(method, path string, handler http.Handler) {
+	allowed := []string{"head", "get", "post", "put", "patch", "delete", "options"}
+	m := strings.ToLower(method)
+	for _, am := range allowed {
+		if m == am {
+			c.muxFn().Handler(method, path, handler)
+			return
+		}
+	}
+}
+
+// NotFound handler for Gorilla.
+func (c *HTTPRouter) NotFound(handler http.Handler) {
+	c.muxFn().NotFound = handler
+}
+
+// Name returns name of router.
+func (c *HTTPRouter) Name() string {
+	return "httprouter"
+}
+
+// SetMuxFn set a func which return mux ... it helps in returning actaul mux from ebbedded types.
+func (c *HTTPRouter) SetMuxFn(fn func() *httprouter.Router) {
 	c.muxFn = fn
 }
 
