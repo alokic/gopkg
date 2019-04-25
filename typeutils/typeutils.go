@@ -2,6 +2,7 @@ package typeutils
 
 import (
 	"encoding/json"
+	"reflect"
 	"regexp"
 	"strconv"
 	"time"
@@ -10,65 +11,7 @@ import (
 )
 
 func Blank(id interface{}) bool {
-
-	// lets only do type assertion and not type conversio for basic types.
-	// 3x slow.. type-converion 6x slow.. but ok
-	switch id.(type) {
-	case int:
-		if id == int(0) {
-			return true
-		}
-	case int32:
-		if id == int32(0) {
-			return true
-		}
-	case int64:
-		if id == int64(0) {
-			return true
-		}
-
-	case uint:
-		if id == uint(0) {
-			return true
-		}
-	case uint32:
-		if id == uint32(0) {
-			return true
-		}
-	case uint64:
-		if id == uint64(0) {
-			return true
-		}
-
-	case float32:
-		if id == float32(0.0) {
-			return true
-		}
-	case float64:
-		if id == float64(0.0) {
-			return true
-		}
-
-	case json.Number:
-		n, _ := strconv.ParseFloat(string(id.(json.Number)), 64)
-		if n == 0.0 {
-			return true
-		}
-
-	case nil:
-		return true
-
-	case string:
-		if id == "" {
-			return true
-		}
-
-	case bool:
-		if id == false {
-			return true
-		}
-	}
-	return false
+	return reflect.ValueOf(id).IsNil()
 }
 
 func Present(id interface{}) bool {
