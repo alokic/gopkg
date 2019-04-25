@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/reflectx"
 	_ "github.com/lib/pq"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
@@ -87,16 +87,16 @@ func BatchInsertStatement(table string, records []interface{}, fi *FieldInfo) (s
 		}
 	}
 
-	{
-		if fi.DriverName == "postgres" {
-			stmt = fmt.Sprintf(queryInsert, table, fi.DBTags, fi.QuestionBindVar(len(records)))
-			stmt = Rebind(fi.DriverName, stmt) // needed for QBindVars as Postgres support EnumBindVars
-		} else {
-			stmt = fmt.Sprintf(queryInsert, table, fi.DBTags, fi.DollarBindVar(len(records)))
-		}
+	if fi.DriverName == "postgres" {
+		stmt = fmt.Sprintf(queryInsert, table, fi.DBTags, fi.QuestionBindVar(len(records)))
+		return Rebind(fi.DriverName, stmt), params // needed for QBindVars as Postgres support EnumBindVars
 	}
 
-	return stmt, params
+	if fi.DriverName == "mysql" {
+		return fmt.Sprintf(queryInsert, table, fi.DBTags, fi.QuestionBindVar(len(records))), params
+	}
+
+	return fmt.Sprintf(queryInsert, table, fi.DBTags, fi.DollarBindVar(len(records))), params
 }
 
 // BatchUpsertStmt prepares upsert statement.

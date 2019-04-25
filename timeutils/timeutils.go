@@ -2,6 +2,9 @@ package timeutils
 
 import (
 	"time"
+
+	"github.com/golang/protobuf/ptypes"
+	tspb "github.com/golang/protobuf/ptypes/timestamp"
 )
 
 // UnixTime in milliseconds
@@ -19,4 +22,14 @@ func UnixTimeAtStartOfToday() int64 {
 func DaysTillToday(unixtimestamp int64) time.Duration {
 	tm := time.Unix(unixtimestamp, 0)
 	return time.Now().Sub(tm)
+}
+
+// ToProto converts to proto3 time.
+func ToProto(t time.Time) (*tspb.Timestamp, error) {
+	return ptypes.TimestampProto(t)
+}
+
+// FromProto converts from proto3 time to time.Time.
+func FromProto(t *tspb.Timestamp) (time.Time, error) {
+	return ptypes.Timestamp(t)
 }
