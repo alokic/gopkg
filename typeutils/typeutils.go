@@ -11,7 +11,7 @@ import (
 )
 
 func Blank(id interface{}) bool {
-	return reflect.ValueOf(id).IsNil()
+	return reflect.DeepEqual(reflect.ValueOf(id), reflect.Zero(reflect.TypeOf(id)))
 }
 
 func Present(id interface{}) bool {
