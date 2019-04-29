@@ -14,10 +14,11 @@ import (
 )
 
 var (
-	queryInsert = "INSERT INTO %s (%s) VALUES %s"
-	queryUpdate = "UPDATE %s SET %s WHERE %s"
-	queryUpsert = "%s ON CONFLICT (%s) DO UPDATE SET %s"
-	driverName  = "postgres"
+	queryInsert      = "INSERT INTO %s (%s) VALUES %s"
+	queryUpdate      = "UPDATE %s SET %s WHERE %s"
+	queryUpsert      = "%s ON CONFLICT (%s) DO UPDATE SET %s"
+	mysqlQueryUpsert = "%s ON DUPLICATE KEY UPDATE %s"
+	driverName       = "postgres"
 )
 
 // DB wrapper struct.
@@ -99,8 +100,9 @@ func BatchInsertStatement(table string, records []interface{}, fi *FieldInfo) (s
 	return fmt.Sprintf(queryInsert, table, fi.DBTags, fi.DollarBindVar(len(records))), params
 }
 
-// BatchUpsertStmt prepares upsert statement.
-func BatchUpsertStmt(table string, records []interface{}, conflictKey string, fi *FieldInfo) (string, []interface{}, error) {
+// PGBatchUpsertStatement prepares upsert statement.
+// Works for Postgres.
+func PGBatchUpsertStatement(table string, records []interface{}, conflictKey string, fi *FieldInfo) (string, []interface{}, error) {
 	if len(records) == 0 {
 		return "", nil, errors.New("no reords to upsert")
 	}
@@ -122,10 +124,43 @@ func BatchUpsertStmt(table string, records []interface{}, conflictKey string, fi
 		if isZero(sf.value) {
 			continue
 		}
+
 		stmts = append(stmts, fmt.Sprintf("%s = excluded.%s", sf.dbtag, sf.dbtag))
 	}
 
 	return fmt.Sprintf(queryUpsert, insertStmt, conflictKey, strings.Join(stmts, ",")), params, nil
+}
+
+// MysqlBatchUpsertStatement prepares upsert statement.
+// Duplicate of above and dirty!! TODO TBD
+// Works for Mysql.
+func MysqlBatchUpsertStatement(table string, records []interface{}, fi *FieldInfo) (string, []interface{}, error) {
+	if len(records) == 0 {
+		return "", nil, errors.New("no reords to upsert")
+	}
+
+	insertStmt, params := BatchInsertStatement(table, records, fi)
+
+	iter, err := newStructIterator(records[0], fi)
+	if err != nil {
+		return "", nil, err
+	}
+
+	var stmts []string
+	for {
+		sf := iter.next()
+		if sf == nil {
+			break
+		}
+
+		if isZero(sf.value) {
+			continue
+		}
+
+		stmts = append(stmts, fmt.Sprintf("%s = VALUES(%s)", sf.dbtag, sf.dbtag))
+	}
+
+	return fmt.Sprintf(mysqlQueryUpsert, insertStmt, strings.Join(stmts, ",")), params, nil
 }
 
 // PartialUpdateStmt create
