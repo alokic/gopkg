@@ -84,6 +84,7 @@ func BatchInsertStatement(table string, records []interface{}, fi *FieldInfo) (s
 			if sf == nil {
 				break
 			}
+
 			params = append(params, sf.value)
 		}
 	}
@@ -154,6 +155,10 @@ func MysqlBatchUpsertStatement(table string, records []interface{}, fi *FieldInf
 		}
 
 		if isZero(sf.value) {
+			continue
+		}
+
+		if sf.dbtag == "id" {
 			continue
 		}
 

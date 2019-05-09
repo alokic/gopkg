@@ -3,6 +3,8 @@ package sql
 import (
 	"errors"
 	"reflect"
+
+	"github.com/alokic/gopkg/typeutils"
 )
 
 type structIterator struct {
@@ -64,5 +66,5 @@ func (s *structIterator) next() *structField {
 // isZero return wether x is the is
 // the zero-value of its underlying type.
 func isZero(x interface{}) bool {
-	return reflect.DeepEqual(x, reflect.Zero(reflect.TypeOf(x)).Interface())
+	return typeutils.Blank(x)
 }

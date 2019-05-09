@@ -10,8 +10,16 @@ import (
 	"github.com/spf13/cast"
 )
 
+var epochTime = time.Unix(0, 0).UTC()
+
 func Blank(id interface{}) bool {
-	return reflect.DeepEqual(reflect.ValueOf(id), reflect.Zero(reflect.TypeOf(id)))
+	switch reflect.TypeOf(id).Kind() {
+	case reflect.TypeOf(time.Time{}).Kind():
+		t := reflect.ValueOf(id).Interface().(time.Time)
+		return (t.Sub(epochTime) == 0) || t.IsZero()
+	default:
+		return reflect.DeepEqual(reflect.ValueOf(id), reflect.Zero(reflect.TypeOf(id)))
+	}
 }
 
 func Present(id interface{}) bool {
